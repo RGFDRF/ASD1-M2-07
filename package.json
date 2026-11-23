@@ -1,0 +1,11 @@
+{
+  "name": "asd1-m2-07-dziennik-praktyk",
+  "version": "1.0.1",
+  "private": true,
+  "description": "Statyczny dziennik praktyk i demonstracja algorytmów",
+  "scripts": {
+    "test": "node tests/tests.js && node tests/app-ui.test.js && node tests/import-types.test.js",
+    "benchmark": "node tests/benchmark.js",
+    "test:browser": "node tests/browser.test.js"
+  }
+}
