@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "practice": {
+    "name": "Praktyka zawodowa — przykład kontrolny",
+    "required": 600
+  },
+  "entries": [
+    { "id": "A", "date": "2026-11-02", "start": "09:00", "end": "12:00", "break": 15, "description": "Przygotowanie dokumentacji praktyk" },
+    { "id": "B", "date": "2026-11-02", "start": "13:00", "end": "15:00", "break": 0, "description": "Wsparcie zespołu" },
+    { "id": "C", "date": "2026-11-03", "start": "09:00", "end": "12:00", "break": 0, "description": "Testowanie aplikacji" }
+  ]
+}

@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Pomocniczy dziennik praktyk studenckich z kontrolą czasu i demonstracją algorytmów.">
+  <title>Dziennik praktyk · ASD1-M2-07</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <img id="brandLogo" class="logo" src="assets/logo-uwb.png" alt="Filia UwB w Wilnie" width="120" height="43">
+      <div><small>Algorytmy i struktury danych I · mini-projekt M2 · ASD1-M2-07</small><h1>Dziennik praktyk studenckich</h1><span>Daniel Zawisza</span></div>
+    </div>
+  </header>
+  <main>
+    <p class="notice"><strong>Pomocniczy dziennik</strong> — nie jest formalnym zatwierdzeniem praktyk. Dane zapisują się wyłącznie w tej przeglądarce; każdy odwiedzający ma własny zapis lokalny. Eksportuj JSON, aby przenieść kopię.</p>
+    <section class="cards" aria-label="Podsumowanie praktyki">
+      <article><small>WYKONANO</small><strong id="done">0 min</strong></article>
+      <article><small>POZOSTAŁO</small><strong id="left">0 min</strong></article>
+      <article><small>POSTĘP</small><strong id="progress">0,0%</strong><progress id="bar" value="0" max="100" aria-label="Postęp praktyki"></progress></article>
+    </section>
+    <section class="panel">
+      <h2>Praktyka</h2>
+      <div class="grid practice-grid"><label>Nazwa <input id="practice" value="Praktyka zawodowa" maxlength="120"></label><label>Wymagane minuty <input id="required" type="number" min="1" step="1" value="600"></label></div>
+      <div class="actions"><button id="example">Przykład kontrolny</button><button id="typical">Scenariusz typowy</button><button id="boundary">Scenariusz graniczny</button><button id="demo">Większy zestaw (100)</button></div>
+    </section>
+    <section class="panel">
+      <h2 id="formTitle">Dodaj wpis</h2>
+      <form id="entryForm">
+        <input id="editId" type="hidden">
+        <div class="grid"><label>ID <input id="id" required pattern="[A-Za-z0-9-]{1,80}" maxlength="80" placeholder="np. A-01"></label><label>Data <input id="date" type="date" required></label><label>Start <input id="start" type="time" required></label><label>Koniec <input id="end" type="time" required></label><label>Przerwa (min) <input id="break" type="number" min="0" step="1" value="0" required></label></div>
+        <label>Opis czynności <textarea id="description" maxlength="2000" required></textarea></label>
+        <button class="primary">Zapisz wpis</button><button type="button" id="cancel" hidden>Anuluj edycję</button><p id="message" role="status" aria-live="polite"></p>
+      </form>
+    </section>
+    <section class="panel">
+      <div class="row"><h2>Wpisy i raport chronologiczny</h2><div><button id="export">Eksport JSON</button><button id="downloadReport">Pobierz raport TXT</button><label class="file">Import JSON<input id="import" type="file" accept="application/json,.json"></label></div></div>
+      <p class="hint">Import sprawdza cały plik przed pytaniem o zastąpienie danych. Błędny plik nie usuwa bieżącej pracy.</p>
+      <div class="filters"><label>Szukaj opisu <input id="search" type="search"></label><label>Od <input id="from" type="date"></label><label>Do <input id="to" type="date"></label></div>
+      <p class="counters">Sortowanie: <strong id="sortCounter">0 porównań kluczy</strong> · wyszukiwanie: <strong id="searchCounter">0 sprawdzonych rekordów</strong></p>
+      <div id="entries" aria-live="polite"></div><h3>Sumy dzienne</h3><div id="days"></div>
+      <details><summary>Tekst raportu do skopiowania</summary><pre id="report"></pre></details>
+    </section>
+    <section class="panel">
+      <h2>Jak działają algorytmy</h2>
+      <p>Wpisy to lista rekordów z niezmiennym ID, datą, godzinami, przerwą i opisem. Godziny zamieniamy na minuty od północy; odejmujemy przerwę, a nie zapisujemy czasu jako HH.MM. Przedziały tego samego dnia konfliktują, gdy <code>startA &lt; koniecB</code> i <code>koniecA &gt; startB</code>. Równe granice są dozwolone.</p>
+      <h3>Sortowanie przez wstawianie</h3>
+      <pre>dla i = 1 .. n−1:
+  klucz = lista[i]; j = i−1
+  dopóki j ≥ 0 i lista[j] &gt; klucz:
+    lista[j+1] = lista[j]; j = j−1
+  lista[j+1] = klucz</pre>
+      <p>Porównujemy kolejno datę, start i ID. Licznik na stronie jest liczbą rzeczywistych porównań klucza w ostatnim renderowaniu. Wyszukiwanie liniowe zwraca <strong>wszystkie</strong> dopasowania, więc sprawdza każdy rekord. Sumowanie minut oraz sprawdzanie konfliktów przechodzą po odpowiednich rekordach.</p>
+      <h3>Wyszukiwanie liniowe</h3>
+      <pre><code>wyniki ← pusta lista
+dla każdego wpisu:
+    zwiększ licznik sprawdzonych wpisów
+    jeżeli opis zawiera szukaną frazę (bez różnicy wielkości liter):
+        dodaj wpis do wyników
+zwróć wyniki</code></pre>
+      <h3>Przykład sortowania przez wstawianie</h3>
+      <p>Klucz: data → godzina początku → ID. Wejście <code>C, A, B</code> ma wynik <code>A, B, C</code>.</p>
+      <div class="table-wrap"><table><thead><tr><th>Przed</th><th>Decyzja</th><th>Po</th></tr></thead><tbody>
+        <tr><td>C, A, B</td><td>Wstaw A: porównaj C z A; 03.11 &gt; 02.11, więc przesuń C</td><td>C, C, B</td></tr>
+        <tr><td>C, C, B</td><td>Brak dalszych rekordów po lewej; umieść A na początku</td><td>A, C, B</td></tr>
+        <tr><td>A, C, B</td><td>Wstaw B: C ma późniejszą datę; przesuń C</td><td>A, C, C</td></tr>
+        <tr><td>A, C, C</td><td>A ≤ B według klucza; umieść B po A</td><td>A, B, C</td></tr>
+      </tbody></table></div>
+      <div class="table-wrap"><table><thead><tr><th>Przed</th><th>Decyzja</th><th>Po</th></tr></thead><tbody><tr><td>A 09:00–10:00</td><td>Wstaw B 10:00–10:30; 10:00 &lt; 10:00 jest fałszem</td><td>A, B — dozwolone stykanie</td></tr><tr><td>B 10:00–10:30</td><td>Wstaw C 10:20–11:00; 10:20 &lt; 10:30 oraz 11:00 &gt; 10:00</td><td>Konflikt — odrzuć bez zmiany listy</td></tr><tr><td>Lista posortowana</td><td>Porównaj kolejne klucze</td><td>Wynik według daty → startu → ID</td></tr></tbody></table></div>
+      <p class="hint">Złożoność: sortowanie O(n²) w najgorszym i O(n) w najlepszym przypadku; implementacja tworzy kopię listy, więc pamięć O(n). Wyszukiwanie i sumowanie O(n), pamięć wyszukiwania O(k) dla k wyników. Raport liczników dla 10/100/1000 rekordów i obu kolejności znajduje się w pliku <a href="docs/BENCHMARK.md">BENCHMARK.md</a>.</p>
+    </section>
+    <footer>Projekt zaliczeniowy ASD1-M2-07 · Daniel Zawisza · 2026/2027.</footer>
+  </main>
+  <script src="js/core.js"></script><script src="js/app.js"></script>
+</body>
+</html>
